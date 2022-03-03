@@ -38,6 +38,8 @@ def query_data():
     print("> Failed to connect to the remote DB. Using the latest saved data.\n")
     path = os.environ['path']
     power, weather = pd.read_csv(f"{path}/data/old/power.csv"), pd.read_csv(f"{path}/data/old/weather.csv")
+    power["time"] = pd.to_datetime(power["time"])
+    weather["time"] = pd.to_datetime(weather["time"])
     return power, weather
   print("> Done!\n")
 
@@ -71,6 +73,7 @@ def query_future_weather():
     print("> Failed to connect to the remote DB. Using the latest saved data.\n")
     path = os.environ['path']
     weather = pd.read_csv(f"{path}/data/future/weather.csv")
+    weather["time"] = pd.to_datetime(weather["time"])
     return weather
   print("> Done!\n")
   
