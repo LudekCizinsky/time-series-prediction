@@ -5,10 +5,20 @@ from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.metrics import mean_squared_error, r2_score
 from collections import defaultdict
+from termcolor import colored
+import os
+LOGCL = os.environ['logcl']
+
+
+FEATURES = ['Speed']
+
+def get_future_weather_X(df):
+  X = df.loc[:, df.columns.isin(FEATURES)].to_numpy()
+  return X
 
 def train_lr(X_train, y_train):
 
-  print("[Training Linear regression model with polynomial features]")
+  print(colored("[Training Linear regression model with polynomial features]", LOGCL, attrs=['bold']))
   pipe = make_pipeline(
       StandardScaler(),
       PolynomialFeatures(degree=3, include_bias=False),
@@ -21,7 +31,7 @@ def train_lr(X_train, y_train):
 
 def train_dtr(X_train, y_train):
 
-  print("[Training Decision tree model.]")
+  print(colored("[Training Decision tree model.]", LOGCL, attrs=['bold']))
   pipe = make_pipeline(
       StandardScaler(),
       DecisionTreeRegressor(random_state=42)
@@ -33,7 +43,7 @@ def train_dtr(X_train, y_train):
 
 def compare_models(mds, X_dev, y_dev):
 
-  print("[Comparing models on dev set.]\n")
+  print(colored("[Comparing models on dev set.]\n", LOGCL, attrs=['bold']))
   res = []
   for name, md in mds.items():
     print(f"> Name: {name}")
@@ -48,12 +58,12 @@ def compare_models(mds, X_dev, y_dev):
 
 def do_train_test_split(df):
 
-  print("[Splitting data into train, dev, test sets]")
+  print(colored("[Splitting data into train, dev, test sets]", LOGCL, attrs=['bold']))
   target = "total_mean"
   y = df[target].to_numpy()
-  X = df.loc[:, df.columns.isin(["Speed"])].to_numpy()
-  X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-  X_train, X_dev, y_train, y_dev = train_test_split(X_train, y_train, test_size=0.2, random_state=42)
+  X = df.loc[:, df.columns.isin(FEATURES)].to_numpy()
+  X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle=False)
+  X_train, X_dev, y_train, y_dev = train_test_split(X_train, y_train, test_size=0.2, shuffle=False)
   print("> Done!\n")
 
   return X_train, X_dev, X_test, y_train, y_dev, y_test
@@ -69,16 +79,9 @@ def get_new_model(df):
   mds["Linear regression"] = train_lr(X_train, y_train)
   mds["Decision tree"] = train_dtr(X_train, y_train)
 
-
   # --------- Comparison and evaluation of models
   bestmdname, bestmd = compare_models(mds, X_dev, y_dev)
-  print(f"[Performance of the best model ({bestmdname}) on test set]")
-  y_hat_test = bestmd.predict(X_test)
-  mse = mean_squared_error(y_test, y_hat_test)
-  r2 = r2_score(y_test, y_hat_test)
-  print(f"> MSE: {mse}")
-  print(f"> R2: {r2}\n")
 
-  return bestmd 
+  return bestmd, X_test, y_test
 
 

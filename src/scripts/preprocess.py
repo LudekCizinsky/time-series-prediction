@@ -1,12 +1,15 @@
 import pandas as pd
 from datetime import datetime
 from datetime import timedelta
+from termcolor import colored
+import os
+LOGCL = os.environ['logcl']
 
 
 def aggregate_power(df, fr, to, intv):
 
   # Sample data
-  print(f"[Aggregating power data in the interval of {intv} minutes]")
+  print(colored(f"[Aggregating power data in the interval of {intv} minutes]", LOGCL, attrs=['bold']))
   start, end = fr, fr + timedelta(minutes=intv) 
   tm = []
   avg_power = []
@@ -33,7 +36,7 @@ def aggregate_power(df, fr, to, intv):
 
 def pp_power(df):
 
-  print("[Preprocessing power data]")
+  print(colored("[Preprocessing power data]", LOGCL, attrs=['bold']))
 
   print("## Drop rows with missing values")
   n1 = df.shape[0]
@@ -50,7 +53,7 @@ def pp_power(df):
 
 def pp_weather(df):
 
-  print("[Preprocessing weather data]")
+  print(colored("[Preprocessing weather data]", LOGCL, attrs=['bold']))
 
   print("## Drop rows with missing values")
   n1 = df.shape[0]
@@ -59,10 +62,10 @@ def pp_weather(df):
   print(f"> Dropped {n1 - n2} rows with missing values.\n")
 
   print("## Drop irrelevant columns")
-  df.drop(labels=["Lead_hours"], inplace=True, axis=1)
-  print("> Dropped successfully Lead hours column.\n")  
+  df.drop(labels=["Lead_hours", "Source_time"], inplace=True, axis=1)
+  print("> Dropped successfully Lead hours and Source time columns.\n")  
  
-  print("[One hot encoding relevant columns]")
+  print(colored("[One hot encoding relevant columns]", LOGCL, attrs=['bold']))
   df = pd.get_dummies(df, columns=["Direction"])
   print(f"> Successfully one hot encoded direction column.\n")
 
@@ -79,7 +82,7 @@ def preprocess(dfs):
   power = aggregate_power(power, fr, to, intv=180)
  
   # --- Merging
-  print("[Merging power and dataset together using inner join]")
+  print(colored("[Merging power and dataset together using inner join]", LOGCL, attrs=['bold']))
   df = weather.merge(power, on="time", how="inner")
   n1, m1 = weather.shape
   n2, m2 = power.shape
