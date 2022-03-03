@@ -1,6 +1,6 @@
-HOST=None
-PORT=None
-USERNAME=None
-PASSWORD=None
-DBNAME=None
+HOST=''
+PORT=''
+USERNAME=''
+PASSWORD=''
+DBNAME=''
 
