@@ -10,7 +10,7 @@ import os
 LOGCL = os.environ['logcl']
 
 
-FEATURES = ['Speed']
+FEATURES = ['Speed', 'Wx', 'Wy']
 
 def get_future_weather_X(df):
   X = df.loc[:, df.columns.isin(FEATURES)].to_numpy()
@@ -49,7 +49,9 @@ def compare_models(mds, X_dev, y_dev):
     print(f"> Name: {name}")
     y_hat_dev = md.predict(X_dev)
     mse = mean_squared_error(y_dev, y_hat_dev)
-    print(f"> MSE: {mse}\n")
+    r2 = r2_score(y_dev, y_hat_dev)
+    print(f"> MSE: {mse}")
+    print(f"> R2: {r2}\n")
     res.append((name, mse,))
   name, _ = sorted(res, key=lambda x: x[1])[0]
   

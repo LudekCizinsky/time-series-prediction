@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from datetime import datetime
 from datetime import timedelta
 from termcolor import colored
@@ -50,6 +51,23 @@ def pp_power(df):
 
   return df
 
+def dir2deg(s):
+  """Copied from:
+  Https://codegolf.stackexchange.com/questions/54755/convert-a-point-of-the-compass-to-degree://codegolf.stackexchange.com/questions/54755/convert-a-point-of-the-compass-to-degrees
+  """
+
+  if 'W' in s:
+      s = s.replace('N','n')
+  a=(len(s)-2)/8
+  if 'b' in s:
+      a = 1/8 if len(s)==3 else 1/4
+      return (1-a)*f(s[:-2])+a*dir2deg(s[-1])
+  else:
+      if len(s)==1:
+          return 'NESWn'.find(s)*90
+      else:
+          return (dir2deg(s[0])+dir2deg(s[1:]))/2
+
 
 def pp_weather(df):
 
@@ -65,9 +83,16 @@ def pp_weather(df):
   df.drop(labels=["Lead_hours", "Source_time"], inplace=True, axis=1)
   print("> Dropped successfully Lead hours and Source time columns.\n")  
  
-  print(colored("[One hot encoding relevant columns]", LOGCL, attrs=['bold']))
-  df = pd.get_dummies(df, columns=["Direction"])
-  print(f"> Successfully one hot encoded direction column.\n")
+  print("## Transforming direction to a vector feature")
+  print("> Getting the needed info: dir2deg, deg2rad")
+  wd = df.pop("Direction")
+  wd_deg = wd.apply(dir2deg)
+  wv = df["Speed"] 
+  wd_rad = wd_deg*np.pi / 180
+  print("> Calculating the wind x and y components.")
+  df['Wx'] = wv*np.cos(wd_rad)
+  df['Wy'] = wv*np.sin(wd_rad)
+  print(f"> Done!\n")
 
   return df
   

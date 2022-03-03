@@ -20,7 +20,7 @@ def predict_future(nm, X_test, y_test):
     om = None
 
   if om is not None:
-    print("> Done\n")
+    print("> Done!\n")
     print(colored(f"[Performance of the latest old model on test set]", LOGCL, attrs=['bold']))
     y_hat_om = om.predict(X_test)
     mseom = mean_squared_error(y_test, y_hat_om)
@@ -29,7 +29,7 @@ def predict_future(nm, X_test, y_test):
     print(f"> R2: {r2om}\n")
 
 
-  print(colored(f"[Performance of the best new model on test set]", LOGCL, attrs=['bold']))
+  print(colored(f"[Performance of the new model on test set]", LOGCL, attrs=['bold']))
   y_hat_nm = nm.predict(X_test)
   msenm = mean_squared_error(y_test, y_hat_nm)
   r2nm = r2_score(y_test, y_hat_nm)
@@ -49,14 +49,14 @@ def predict_future(nm, X_test, y_test):
   filename = f"{os.environ['path']}/predictions/" + datetime.now().strftime("%Y-%m-%d-%H-%M-%S") + ".csv"
   with open(filename, "w") as out:
     out.write(y_hat)
-  print("> Done.\n")
+  print("> Done!\n")
   
   print(colored("[Saving the best model.]", LOGCL, attrs=['bold']))
   filename1 = f"{os.environ['path']}/models/" + datetime.now().strftime("%Y-%m-%d-%H-%M-%S") + ".model"
   filename2 = f"{os.environ['path']}/models/latest.model"
   pickle.dump(bm, open(filename1, 'wb'))
   pickle.dump(bm, open(filename2, 'wb'))
-  print("> Done.\n")
+  print("> Done!\n")
 
   now = datetime.now()
   print(colored("[Log end - " + now.strftime("%Y-%m-%d %H:%M:%S") + "]\n", 'red', attrs=['bold']))

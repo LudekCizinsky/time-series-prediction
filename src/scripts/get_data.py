@@ -83,7 +83,7 @@ def query_future_weather():
   # Limit to only the newest source time
   newest_source_time = for_df["Source_time"].max()
   weather = for_df.loc[for_df["Source_time"] == newest_source_time].copy()
-  print("> Done.\n")
+  print("> Done!\n")
   
   print(colored("[Saving the fetched data]", LOGCL, attrs=['bold']))
   path = os.environ['path']
