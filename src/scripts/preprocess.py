@@ -7,33 +7,17 @@ import os
 LOGCL = os.environ['logcl']
 
 
-def aggregate_power(df, fr, to, intv):
+def aggregate_power(df):
 
   # Sample data
-  print(colored(f"[Aggregating power data in the interval of {intv} minutes]", LOGCL, attrs=['bold']))
-  start, end = fr, fr + timedelta(minutes=intv) 
-  tm = []
-  avg_power = []
-  while start <= to:
-     
-    mask = df["time"].between(start, end, inclusive="left")
-    s = df[mask]
-    tm.append(start)
-    avg_power.append(s["Total"].mean())
-    start += timedelta(minutes=intv)
-    end += timedelta(minutes=intv)
-  
-  # create a new df
-  df = pd.DataFrame.from_dict({"time": tm, "total_mean": avg_power})
-  n1 = df.shape[0]
-  df.dropna(inplace=True)
-  n2 = df.shape[0]
-  print(f"> Successfully aggregated the power dataset into {df.shape[0]} rows. More details:")
-  print(f">> Dropped {n1 - n2} rows with missing values.")
-  print(">> This is because in the given intervals there were no power records.\n")
-   
-  return df
+  print(colored(f"[Aggregating power data in the interval of 180 minutes]", LOGCL, attrs=['bold']))
 
+
+  df = df.resample('180min', on='time').mean().interpolate(method='linear')
+  print("> Done!\n")
+
+  return df
+  
 
 def pp_power(df):
 
@@ -69,7 +53,7 @@ def dir2deg(s):
           return (dir2deg(s[0])+dir2deg(s[1:]))/2
 
 
-def pp_weather(df):
+def pp_weather(df, lm_lead=True):
 
   print(colored("[Preprocessing weather data]", LOGCL, attrs=['bold']))
 
@@ -80,8 +64,8 @@ def pp_weather(df):
   print(f"> Dropped {n1 - n2} rows with missing values.\n")
 
   print("## Drop irrelevant columns")
-  df.drop(labels=["Lead_hours", "Source_time"], inplace=True, axis=1)
-  print("> Dropped successfully Lead hours and Source time columns.\n")  
+  df.drop(labels=["Source_time"], inplace=True, axis=1)
+  print("> Dropped successfully Source time columns.\n")  
  
   print("## Transforming direction to a vector feature")
   print("> Getting the needed info: dir2deg, deg2rad")
@@ -93,6 +77,11 @@ def pp_weather(df):
   df['Wx'] = wv*np.cos(wd_rad)
   df['Wy'] = wv*np.sin(wd_rad)
   print(f"> Done!\n")
+  
+  if lm_lead:
+    print("## Selecting only records with lead hours equal to 1")
+    df = df[df["Lead_hours"] == "1"]
+    print(f"> Done!\n")
 
   return df
   
@@ -103,8 +92,7 @@ def preprocess(dfs):
   power, weather = pp_power(dfs[0]), pp_weather(dfs[1])
 
   # ---- Aggregate power dataset
-  fr, to = weather["time"].iloc[0], weather["time"].iloc[-1]
-  power = aggregate_power(power, fr, to, intv=180)
+  power = aggregate_power(power)
  
   # --- Merging
   print(colored("[Merging power and dataset together using inner join]", LOGCL, attrs=['bold']))

@@ -28,9 +28,6 @@ def get_client():
 
 def query_data():
   
-  now = datetime.datetime.now()
-  print(colored("[Log start - " + now.strftime("%Y-%m-%d %H:%M:%S") + "]\n", 'red', attrs=['bold']))
-
   print(colored("[Initializing connection]", LOGCL, attrs=['bold']))
   try:
     client = get_client() 

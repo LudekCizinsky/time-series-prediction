@@ -42,7 +42,7 @@ def predict_future(nm, X_test, y_test):
   else:
     bm = nm
 
-  X = get_future_weather_X(pp_weather(query_future_weather()))
+  X = get_future_weather_X(pp_weather(query_future_weather(), False))
 
   print(colored(f"[Using the better model to make future prediction]", LOGCL, attrs=['bold']))
   y_hat = ','.join([str(v) for v in bm.predict(X)])
@@ -57,7 +57,4 @@ def predict_future(nm, X_test, y_test):
   pickle.dump(bm, open(filename1, 'wb'))
   pickle.dump(bm, open(filename2, 'wb'))
   print("> Done!\n")
-
-  now = datetime.now()
-  print(colored("[Log end - " + now.strftime("%Y-%m-%d %H:%M:%S") + "]\n", 'red', attrs=['bold']))
 
