@@ -9,7 +9,7 @@ while true; do
   if [[ $ans  =~ "y" ]]
   then
     filename=src/log/"$(date +"%Y_%m_%d_%I_%M_%p").log"
-    echo "Wait for a couple of seconds, pipeline is being executed..."
+    echo "Wait for ~2 mins, pipeline is being executed..."
     src/main.py > $filename
     echo "------ Pipeline finished successfully, see below the summary"
     cat $filename
