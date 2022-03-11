@@ -15,7 +15,7 @@ warnings.filterwarnings('ignore')
 LOGCL = os.environ['logcl']
 
 
-FEATURES = ['Speed', 'Wx', 'Wy']
+FEATURES = ["Speed"]
 
 def get_future_weather_X(df):
   X = df.loc[:, df.columns.isin(FEATURES)].to_numpy()

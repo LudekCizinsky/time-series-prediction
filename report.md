@@ -74,7 +74,7 @@ For the second problem, I did initial EDA and found out that when it comes to
 past weather forecast, there are only records with lead hours equal to 1.
 Therefore, I made an assumption that it will be this way all the time and thus
 filter out records whose lead hours cell is greater than 1 to ensure that there
-are no duplicates for a certain time. Again, I could possibly set an alert which would inform when this assumption might not hold any longer. On the other hand, naturally for the future weather forecasts, it did not make sense to apply such filter. On other other hand, this approach leads to the unnecessary loss of data and it might be desirable for the model to take into account the lead hours as well. Despite that, my philosophy here was that I want my model to be trained on the most precise data.
+are no duplicates for a certain time. Again, I could possibly set an alert which would inform me when this assumption might not hold any longer. On the other hand, naturally for the future weather forecasts, it did not make sense to apply such filter. Further, this approach leads to unnecessary loss of data and it might be desirable for the model to take into account the lead hours as well. Despite that, my philosophy here was that I want my model to be trained on the most precise data.
 
 Last but not the least, I had to decide how I am going to align the two datasets
 since weather dataset included records `3 hours` from each other whereas the
@@ -128,7 +128,7 @@ lose additional data. Finally, once this has been done, I used inner join to mer
 df = weather.merge(power, on="time", how="inner")
 ```
 
-Note that to implement the first option, I simply ignored the `resampling` step. After the merged, I printed the following information summarizing the merge:
+Note that to implement the first option, I simply ignored the `resampling` step. After the merged, I printed the following information summarizing the merge (this corresponds to the second option):
 
 ```py
 > merged done successfully:
@@ -144,6 +144,8 @@ Note that to implement the first option, I simply ignored the `resampling` step.
 >> Wy
 >> Total
 ```
+
+Based on empirical evidence, I concluded that the first option is better.
 
 ### Model training
 Before, I dived into model training, I tried to visualize the relationship
@@ -166,14 +168,26 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle
 
 In the above code snippet, you can also see that before the actual split,
 I extract the power production column and save it as a numpy array. Similarly,
-I extract relevant columns which represents the features, I ended using as
-features from the merged data set the following columns:
+I extract relevant columns which represent features. My final choice of features
+was as follows:
 
 ```py
-FEATURES = ['Speed', 'Wx', 'Wy']
+FEATURES = ['Speed']
 ```
 
-I already mentioned the reason why I decided NOT to use `Lead_hours`. I ended
+The reason why I did not decide to include `wind vector` as a feature is that
+I actually got worse results. This shows two things:
+
+- Since the feature space is larger, it is easier to overfit due to `curse of
+  dimensionality` and thus cross validated results get worse
+
+- I tried to have as features only the wind vector and got cross validated `R2 ~ 0.4` compare to
+  the model trained only on speed `R2 ~ 0.6` (for FFNN). My interpretation of
+  this is that wind vector is capable of giving a good indication of power
+  production, but when combined with speed, it does not add any significant
+  additional information which would lead to better results 
+
+Further, I already mentioned the reason why I decided NOT to use `Lead_hours`. I ended
 up not using `Time` because I believe it does not play an important role compare
 to other features. On the other hand, I believe it might be at least worth trying.
 
@@ -201,14 +215,16 @@ grid.fit(X_train, y_train)
 In a similar fashion, I trained the other models. I then used the model with the best cross validated `R2` score which as expected was `FNNN`:
 
 ```
+[Comparing models' best cross validated scores]
+
 > Name: Linear regression
-> R2: 0.34141478760749594
+> R2: 0.6091809162158869
 
 > Name: Decision tree
-> R2: 0.5664541730881512
+> R2: 0.5983677449969956
 
 > Name: Neural network
-> R2: 0.589247271695386
+> R2: 0.6173646475440021
 ```
 
 I decided to use the `R2` score for the following reasons:
@@ -233,12 +249,10 @@ future. Again, the key scoring metric was `R2`:
 
 ```
 [Performance of the latest old model on test set]
-> MSE: 24.816160553268528
-> R2: 0.7874084233864374
+> R2: 0.7801291121068283
 
 [Performance of the new model on test set]
-> MSE: 36.09059108287243
-> R2: 0.6908242254979815
+> R2: 0.7801291121068283
 ```
 
 After choosing the best model,
@@ -252,14 +266,23 @@ pipeline as well as considerations that I have not mentioned in the previous
 sections.
 
 ### Features
-First, one might ask whether the wind direction, or in my case wind direction
-vector was any useful. I simply tried to run the pipeline with and without wind
-vector to see whether it has an impact on the performance.
+As a possible future improvement, I might consider transforming time column into
+a usable feature such as by translating the `datetime` value into a `timestamp`.
+Another improvement could be made by adding a `feature selector` to the pipeline
+such as [recursive feature elimination](https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.RFE.html#sklearn.feature_selection.RFE). 
 
+### Models
+Since we are dealing with time series data, it might be beneficial to use
+a model which is capable of taking the previous state (timewise) into account.
+An example of such model might be [LSTM](https://pytorch.org/docs/stable/generated/torch.nn.LSTM.html).
 
-
-- use time column
-- use LSTM
-
-## Conclusion
+### More data
+One might also consider taking into account more historic data instead of just
+`90 days`. I tried to use `180 days` to determine what might be an optimal
+interval and my `R2` performance improved slightly. On the other hand, it is
+important to note that feeding in more data does necessarily need to translate
+into a better performance since the new data might not add any new patterns to
+be learned. In addition, in the context of time series, it is also important
+consider that we might not want the model to learn patterns that happened
+a while ago.
 
