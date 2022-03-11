@@ -9,7 +9,7 @@ My project can be divided into the following stages:
 Each stage is dependent on the previous one, i.e., each stage depends on the
 output of the previous stage. Last but not the least, after the preprocessing
 step, there is also an `EDA`, however, this acts as an independent unit.
-Each of these stages will be now discussed more in detail in the below section.
+Each of these stages will be now discussed more in detail in the below sections.
 
 ## Detailed look at each stage
 
@@ -31,11 +31,20 @@ datasets:
 2. Getting rid of columns that are not used
 
 The first point is solved by simply dropping rows with missing values. I decided
-to do as there has never been any missing values. However, possibly I could
+to do so as there has never been any missing values. However, possibly I could
 implement an alert which would send me for example an email notification when
-the number of dropped rows would exceed a certain threshold. The second point is
+the number of dropped rows would exceeds a certain threshold. The second point is
 self - explanatory as it does not make sense to keep columns which are not used
-in memory.
+in memory. Here is an example of a log summarizing preprocessing of power data:
+
+```
+[Preprocessing power data]
+## Drop rows with missing values
+> Dropped 0 rows with missing values.
+
+## Drop irrelevant columns
+> Dropped successfully ANM and Non-ANM columns.
+```
 
 In addition to the above steps, for weather dataset, I had to address the
 following:
@@ -43,7 +52,23 @@ following:
 1. Turn the direction of the wind into a quantitative feature
 2. Consider the number of lead hours for given forecast
 
-For the first point, I followed the following [tutorial](https://www.tensorflow.org/tutorials/structured_data/time_series#wind) which shows how to turn the wind direction given in `degrees` to a `wind vector` which has two components `Wx` and `Wy`. Before I could follow the tutorial I had to figure out how to turn the direction given as a string to corresponding degree. Of course one of the possible ways would be to manually define dictionary which would map the string values to the corresponding degree. However, I wanted to find a more robust method which I found on [Stackoverflow](Https://codegolf.stackexchange.com/questions/54755/convert-a-point-of-the-compass-to-degree).
+For the first point, I followed the following [tutorial](https://www.tensorflow.org/tutorials/structured_data/time_series#wind) which shows how to turn the wind direction given in `degrees` to a `wind vector` which has two components `Wx` and `Wy`. Before I could follow the tutorial I had to figure out how to turn the direction given as a string to corresponding degree. Of course one of the possible ways would be to manually define dictionary which would map the string values to the corresponding degree. However, I wanted to find a more robust method which I found on [Stackoverflow](Https://codegolf.stackexchange.com/questions/54755/convert-a-point-of-the-compass-to-degree):
+
+```py
+def dir2deg(s):
+
+  if 'W' in s:
+      s = s.replace('N','n')
+  a=(len(s)-2)/8
+  if 'b' in s:
+      a = 1/8 if len(s)==3 else 1/4
+      return (1-a)*f(s[:-2])+a*dir2deg(s[-1])
+  else:
+      if len(s)==1:
+          return 'NESWn'.find(s)*90
+      else:
+          return (dir2deg(s[0])+dir2deg(s[1:]))/2
+```
 
 For the second problem, I did initial EDA and found out that when it comes to
 past weather forecast, there are only records with lead hours equal to 1.
@@ -186,7 +211,7 @@ In a similar fashion, I trained the other models. I then used the model with the
 > R2: 0.589247271695386
 ```
 
-I decided to use the 'R2' score for the following reasons:
+I decided to use the `R2` score for the following reasons:
 
 - It is easily interpretable
 - One can easily use it to compare different models
@@ -204,11 +229,34 @@ based on their performance on test data set:
 
 I decided to use the test dataset from the most recent data as my goal is to
 find out which of the two models is capable of predicting the most recent
-future. Again, the scoring metric was 'R2'. After choosing the best model,
-I then preprocessed the future weather data in a similar fashion as it was described in the above section. Using the best model, I then predicted future power production and saved it along with the best model.
+future. Again, the key scoring metric was `R2`:
+
+```
+[Performance of the latest old model on test set]
+> MSE: 24.816160553268528
+> R2: 0.7874084233864374
+
+[Performance of the new model on test set]
+> MSE: 36.09059108287243
+> R2: 0.6908242254979815
+```
+
+After choosing the best model,
+I preprocessed the future weather data in a similar fashion as it was described in the above section. Using the best model, I then predicted future power production and saved it along with the best model.
 
 
 ## Further improvements and considerations
+
+In this section, I would like to address possible further improvements of the
+pipeline as well as considerations that I have not mentioned in the previous
+sections.
+
+### Features
+First, one might ask whether the wind direction, or in my case wind direction
+vector was any useful. I simply tried to run the pipeline with and without wind
+vector to see whether it has an impact on the performance.
+
+
 
 - use time column
 - use LSTM
