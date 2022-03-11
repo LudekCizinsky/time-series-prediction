@@ -1,0 +1,126 @@
+[1m[32m[Loading dependencies.][0m
+> Done!
+
+[1m[32m[Loading environment variables.][0m
+> Done!
+
+[1m[31m---------- Log start - 2022-03-11 14:38:12
+[0m
+[1m[35m----- Get data from DB[0m
+[1m[34m[Initializing connection][0m
+> Done!
+
+[1m[34m[Getting the last 90 days of power generation data][0m
+> Done!
+
+[1m[34m[Getting the last 90 days of weather forecasts with the shortest lead time][0m
+> Done!
+
+[1m[34m[Saving the fetched data][0m
+> Done!
+
+[1m[35m----- Preprocessing data[0m
+[1m[34m[Preprocessing power data][0m
+## Drop rows with missing values
+> Dropped 0 rows with missing values.
+
+## Drop irrelevant columns
+> Dropped successfully ANM and Non-ANM columns.
+
+[1m[34m[Preprocessing weather data][0m
+## Drop rows with missing values
+> Dropped 0 rows with missing values.
+
+## Drop irrelevant columns
+> Dropped successfully Source time columns.
+
+## Transforming direction to a vector feature
+> Getting the needed info: dir2deg, deg2rad
+> Calculating the wind x and y components.
+> Done!
+
+## Selecting only records with lead hours equal to 1
+> Done!
+
+[1m[34m[Merging power and dataset together using inner join][0m
+> Merged done successfully. Here is useful info:
+  >> Weather df shape: 716 x 5
+  >> Power df shape:   109026 x 2 
+  >> Merged df shape:  610 x 6
+  
+> Here are columns in the merged data frame:
+>> time
+>> Lead_hours
+>> Speed
+>> Wx
+>> Wy
+>> Total
+
+[1m[35m----- EDA[0m
+[1m[34m[EDA: time vs power history][0m
+> Figure saved to /Users/ludekcizinsky/Dev/personal/time-series-prediction/src/figures/history/timevsproduction_2022-03-11.jpg
+
+[1m[34m[EDA: power vs dependent vars][0m
+> Figure saved to /Users/ludekcizinsky/Dev/personal/time-series-prediction/src/figures/history/productionvsdepvars_2022-03-11.jpg
+
+[1m[35m----- Train the new model and get test data[0m
+[1m[34m[Splitting data into train, dev, test sets][0m
+> Done!
+
+[1m[34m[Training Linear regression model with polynomial features][0m
+> Training successfully done.
+
+[1m[34m[Training Decision tree model.][0m
+> Training successfully done.
+
+[1m[34m[Training NN model.][0m
+> Training successfully done.
+
+[1m[34m[Comparing models' best cross validated scores]
+[0m
+> Name: Linear regression
+> R2: 0.6091809162158869
+
+> Name: Decision tree
+> R2: 0.5983677449969956
+
+> Name: Neural network
+> R2: 0.6173646475440021
+
+[1m[35m----- Compare to old model and predict the future[0m
+[1m[34m[Loading old model from the disk][0m
+> No previous model. Therefore will use the new model.
+
+[1m[34m[Performance of the new model on test set][0m
+> MSE: 25.863237102342794
+> R2: 0.7801291121068283
+
+[1m[34m[Initializing DB connection][0m
+> Done!
+
+[1m[34m[Fetching the latest weather forecast.][0m
+> Done!
+
+[1m[34m[Saving the fetched data][0m
+> Done!
+
+[1m[34m[Preprocessing weather data][0m
+## Drop rows with missing values
+> Dropped 0 rows with missing values.
+
+## Drop irrelevant columns
+> Dropped successfully Source time columns.
+
+## Transforming direction to a vector feature
+> Getting the needed info: dir2deg, deg2rad
+> Calculating the wind x and y components.
+> Done!
+
+[1m[34m[Using the better model to make future prediction][0m
+> Done!
+
+[1m[34m[Saving the best model.][0m
+> Done!
+
+[1m[31m---------- Log end - 2022-03-11 14:39:00
+[0m
