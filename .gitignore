@@ -130,7 +130,9 @@ dmypy.json
 
 # Access to DB
 src/config.py
-todo.md
+
+# Todos
+# todo.md
 
 # Data
 #src/data/
