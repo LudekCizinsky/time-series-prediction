@@ -1,4 +1,4 @@
-## Intro
+<h2 style="color:#22198A">Intro</h2>
 My project can be divided into the following stages:
 
 1. Getting the data from DB 
@@ -106,13 +106,13 @@ df = weather.merge(power, on="time", how="inner")
 Note that to implement the first option, I simply ignored the `resampling` step. After the merged, I printed the following information summarizing the merge:
 
 ```py
-> Merged done successfully. Here is useful info:
+> merged done successfully:
   >> Weather df shape: 717 x 5
   >> Power df shape:   721 x 1
   >> Merged df shape:  717 x 6
 
-> Here are columns in the merged data frame:
->> time
+> here are columns within the merged data frame:
+>> Time
 >> Lead_hours
 >> Speed
 >> Wx
@@ -125,7 +125,7 @@ Before, I dived into model training, I tried to visualize the relationship
 between the `power production` and corresponding independent variable such as
 speed, this can be seen on the figure below:
 
-![Scatter plot](figures/examples/figure1.jpg)
+![Scatter plot](src/figures/examples/figure1.jpg)
 
 Clearly, the relationships are `non-linear` which means that the selected models
 should be able to capture this complexity.
