@@ -1,4 +1,4 @@
-<h2 style="color:#22198A">Intro</h2>
+## Intro
 My project can be divided into the following stages:
 
 1. Getting the data from DB 
@@ -130,8 +130,88 @@ speed, this can be seen on the figure below:
 Clearly, the relationships are `non-linear` which means that the selected models
 should be able to capture this complexity.
 
+I decided to train the models using `cross validation`, therefore I only split the
+data into `training` and `test`:
 
-## Possible improvements
+```py
+y = df[target].to_numpy()
+X = df.loc[:, df.columns.isin(FEATURES)].to_numpy()
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle=False)
+```
+
+In the above code snippet, you can also see that before the actual split,
+I extract the power production column and save it as a numpy array. Similarly,
+I extract relevant columns which represents the features, I ended using as
+features from the merged data set the following columns:
+
+```py
+FEATURES = ['Speed', 'Wx', 'Wy']
+```
+
+I already mentioned the reason why I decided NOT to use `Lead_hours`. I ended
+up not using `Time` because I believe it does not play an important role compare
+to other features. On the other hand, I believe it might be at least worth trying.
+
+Once I obtained training and test data, I decided to use the following three
+models: Linear regression with polynomial features (`LR`), Decision Tree (`DT`), Feed forward neural network  (`FFNN`). I listed them in the increasing order of complexity, where `LR` should serve me as a good baseline, whereas `FFNN` requires more time to train, but would expect better results from it in return. For each of these models, I then used `Grid search` to obtain the most optimal hyper parameters. Here is for example how `FFNN` was trained:
+
+```py
+pipe = make_pipeline(
+    StandardScaler(),
+    MLPRegressor(random_state=42, shuffle=False)
+    )
+
+params = {
+    "mlpregressor__hidden_layer_sizes": [[25, 30], [10, 15]],
+    "mlpregressor__activation": ['relu', 'tanh'],
+    "mlpregressor__learning_rate_init": [.01, .001, .0001, 0.00001],
+    "mlpregressor__max_iter": [400, 600]
+}
+
+grid = GridSearchCV(pipe, param_grid=params, scoring='r2', cv=TimeSeriesSplit(5), verbose=-1)
+
+grid.fit(X_train, y_train)
+```
+
+In a similar fashion, I trained the other models. I then used the model with the best cross validated `R2` score which as expected was `FNNN`:
+
+```
+> Name: Linear regression
+> R2: 0.34141478760749594
+
+> Name: Decision tree
+> R2: 0.5664541730881512
+
+> Name: Neural network
+> R2: 0.589247271695386
+```
+
+I decided to use the 'R2' score for the following reasons:
+
+- It is easily interpretable
+- One can easily use it to compare different models
+- It takes into account mean squared error which emphasizes large errors more
+
+Alternatively, I might choose a different method if I knew what are the
+business objectives.
+
+### Choosing the best model and predicting future power production
+In this final stage, I had to decide which of the following models is better
+based on their performance on test data set:
+
+1. The best previous model
+2. The current model achieving the best cross validated score
+
+I decided to use the test dataset from the most recent data as my goal is to
+find out which of the two models is capable of predicting the most recent
+future. Again, the scoring metric was 'R2'. After choosing the best model,
+I then preprocessed the future weather data in a similar fashion as it was described in the above section. Using the best model, I then predicted future power production and saved it along with the best model.
+
+
+## Further improvements and considerations
+
+- use time column
+- use LSTM
 
 ## Conclusion
 
