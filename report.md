@@ -77,22 +77,22 @@ intervals and then used `mean` to obtain mean generated power within the given
 aggregated dataset, which simply means that within the given 3 hours window
 there were no power data. To solve this issue, I used `linear interpolation` which is
 a way of replacing missing values by assuming that the values are equally
-spaced. A practical example can be found in [pandas docs](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.interpolate.html).
+spaced. A practical example can be found in [pandas docs](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.interpolate.html). Alternatively, I could just drop the corresponding rows, but I did not want to
+lose additional data.
 
-Alternatively, I could just drop the corresponding rows, but I did not want to
-lose additional data. Finally, once this has been done, I used inner join to merge the two datasets:
+Finally, once this has been done, I used inner join to merge the two datasets:
 
 ```py
 df = weather.merge(power, on="time", how="inner")
 ```
 
-Note that to implement the first option, I simply ignored the `resampling` step. After the merged, I printed the following information summarizing the merge (this corresponds to the second option):
+Note that to implement the first option, I simply ignored the `resampling` step. After the merge, I printed the following information summarizing the merge (this corresponds to the first option):
 
 ```py
 > merged done successfully:
-  >> Weather df shape: 717 x 5
-  >> Power df shape:   721 x 1
-  >> Merged df shape:  717 x 6
+  >> Weather df shape: 716 x 5
+  >> Power df shape:   109026 x 2
+  >> Merged df shape:  610 x 6
 ```
 
 Based on empirical evidence, I concluded that the first option is better.
