@@ -93,14 +93,6 @@ Note that to implement the first option, I simply ignored the `resampling` step.
   >> Weather df shape: 717 x 5
   >> Power df shape:   721 x 1
   >> Merged df shape:  717 x 6
-
-> here are columns within the merged data frame:
->> Time
->> Lead_hours
->> Speed
->> Wx
->> Wy
->> Total
 ```
 
 Based on empirical evidence, I concluded that the first option is better.
@@ -126,14 +118,8 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle
 
 In the above code snippet, you can also see that before the actual split,
 I extract the power production column and save it as a numpy array. Similarly,
-I extract relevant columns which represent features. My final choice of features
-was as follows:
-
-```py
-FEATURES = ['Speed']
-```
-
-The reason why I did not decide to include `wind vector` as a feature is that
+I extract relevant columns which represent features. My final choice was to only
+use `Speed` as a feature. The reason why I did not decide to include `wind vector` as a feature is that
 I actually got worse results. This shows two things:
 
 - Since the feature space is larger, it is easier to overfit due to `curse of
