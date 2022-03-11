@@ -37,7 +37,7 @@ def pp_power(df):
 
 def dir2deg(s):
   """Copied from:
-  Https://codegolf.stackexchange.com/questions/54755/convert-a-point-of-the-compass-to-degree://codegolf.stackexchange.com/questions/54755/convert-a-point-of-the-compass-to-degrees
+  Https://codegolf.stackexchange.com/questions/54755/convert-a-point-of-the-compass-to-degree
   """
 
   if 'W' in s:
@@ -86,13 +86,14 @@ def pp_weather(df, lm_lead=True):
   return df
   
  
-def preprocess(dfs):
+def preprocess(dfs, agg_power=False):
 
   # --- Preprocessing of given datasets
   power, weather = pp_power(dfs[0]), pp_weather(dfs[1])
 
   # ---- Aggregate power dataset
-  power = aggregate_power(power)
+  if agg_power:
+    power = aggregate_power(power)
  
   # --- Merging
   print(colored("[Merging power and dataset together using inner join]", LOGCL, attrs=['bold']))

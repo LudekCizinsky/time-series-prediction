@@ -48,14 +48,26 @@ For the first point, I followed the following [tutorial](https://www.tensorflow.
 For the second problem, I did initial EDA and found out that when it comes to
 past weather forecast, there are only records with lead hours equal to 1.
 Therefore, I made an assumption that it will be this way all the time and thus
-filter out records whose lead hours cell is greater than 1. Again, I could
-possibly set an alert which would inform when this assumption might not hold any
-longer. On the other hand, naturally for the future weather forecasts, it did
-not make sense to apply such filter.
+filter out records whose lead hours cell is greater than 1 to ensure that there
+are no duplicates for a certain time. Again, I could possibly set an alert which would inform when this assumption might not hold any longer. On the other hand, naturally for the future weather forecasts, it did not make sense to apply such filter. On other other hand, this approach leads to the unnecessary loss of data and it might be desirable for the model to take into account the lead hours as well. Despite that, my philosophy here was that I want my model to be trained on the most precise data.
 
 Last but not the least, I had to decide how I am going to align the two datasets
 since weather dataset included records `3 hours` from each other whereas the
-power dataset records were sampled `every minute`. I decided to use pandas
+power dataset records were sampled `every minute`. Essentially, the options
+could be summarized as follows:
+
+1. Use only records from power dataset which match the time in weather dataset
+2. Perform aggregation of power dataset by grouping records into 3 hours
+   intervals and use some summary metric on power production
+
+Intuitively, I believe that the first option makes more sense as I want the
+model to know what is the precise power production given some weather data for
+that particular time. On the other hand, we might assume that given weather
+conditions might be very similar within the 3 hours interval and as such it
+might make more sense to go for the second option. For this reason, I decided to
+implement both and empirically compare the results.
+
+To implement the second option, I decided to use pandas
 `resample` method:
 
 ```py
@@ -84,15 +96,16 @@ spaced. A practical example from [pandas docs](https://pandas.pydata.org/docs/re
 3    3.0
 ```
 
-Finally, once this has been done, I used inner join to merge the two datasets:
+Alternatively, I could just drop the corresponding rows, but I did not want to
+lose additional data. Finally, once this has been done, I used inner join to merge the two datasets:
 
-```
+```py
 df = weather.merge(power, on="time", how="inner")
 ```
 
-After the merged, I printed the following information summarizing the merge:
+Note that to implement the first option, I simply ignored the `resampling` step. After the merged, I printed the following information summarizing the merge:
 
-```
+```py
 > Merged done successfully. Here is useful info:
   >> Weather df shape: 717 x 5
   >> Power df shape:   721 x 1
@@ -106,6 +119,17 @@ After the merged, I printed the following information summarizing the merge:
 >> Wy
 >> Total
 ```
+
+### Model training
+Before, I dived into model training, I tried to visualize the relationship
+between the `power production` and corresponding independent variable such as
+speed, this can be seen on the figure below:
+
+![Scatter plot](figures/examples/figure1.jpg)
+
+Clearly, the relationships are `non-linear` which means that the selected models
+should be able to capture this complexity.
+
 
 ## Possible improvements
 
