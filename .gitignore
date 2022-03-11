@@ -133,9 +133,9 @@ src/config.py
 todo.md
 
 # Data
-src/data/
+#src/data/
 
 # Models and predictions
-src/models/
-src/predictions/
+#src/models/
+#src/predictions/
 
